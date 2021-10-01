@@ -13,7 +13,16 @@ import (
 
 const SecretKey = "secret"
 
-func Register(c *fiber.Ctx) error {
+type AuthHandler struct {}
+
+type AuthHandlerInterface interface {
+	Register(c *fiber.Ctx) error
+	Login(c *fiber.Ctx) error
+	User(c *fiber.Ctx) error
+	Logout(c *fiber.Ctx) error
+}
+
+func (h *AuthHandler) Register(c *fiber.Ctx) error {
 	var data map[string]string
 
 	if err := c.BodyParser(&data); err != nil {
@@ -33,7 +42,7 @@ func Register(c *fiber.Ctx) error {
 	
 }
 
-func Login(c *fiber.Ctx) error {
+func (h *AuthHandler) Login(c *fiber.Ctx) error {
 	var data map[string]string
 
 	if err := c.BodyParser(&data); err != nil {
@@ -44,7 +53,7 @@ func Login(c *fiber.Ctx) error {
 
 	database.DB.Where("username = ?", data["username"]).First(&user)
 
-	if user.Id == 0 {
+	if user.ID == 0 {
 		c.Status(fiber.StatusNotFound)
 		return c.JSON(fiber.Map{
 			"message": "user not found",
@@ -59,7 +68,7 @@ func Login(c *fiber.Ctx) error {
 	}
 
 	claims := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.StandardClaims{
-		Issuer:    strconv.Itoa(int(user.Id)),
+		Issuer:    strconv.Itoa(int(user.ID)),
 		ExpiresAt: time.Now().Add(time.Hour * 24).Unix(), //1 day
 	})
 
@@ -86,7 +95,7 @@ func Login(c *fiber.Ctx) error {
 	})
 }
 
-func User(c *fiber.Ctx) error {
+func (h *AuthHandler) User(c *fiber.Ctx) error {
 	cookie := c.Cookies("jwt")
 
 	token, err := jwt.ParseWithClaims(cookie, &jwt.StandardClaims{}, func(token *jwt.Token) (interface{}, error) {
@@ -109,7 +118,7 @@ func User(c *fiber.Ctx) error {
 	return c.JSON(user)
 }
 
-func Logout(c *fiber.Ctx) error {
+func (h *AuthHandler) Logout(c *fiber.Ctx) error {
 	cookie := fiber.Cookie{
 		Name:     "jwt",
 		Value:    "",

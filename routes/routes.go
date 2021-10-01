@@ -5,11 +5,28 @@ import (
 	"github.com/slonob0y/qms/handler"
 )
 
-func Setup(app *fiber.App) {
+type Routes struct {
+	bookHandler handler.BookHandlerInterface
+	authHandler handler.AuthHandlerInterface
+}
 
-	app.Post("/api/register", handler.Register)
-	app.Post("/api/login", handler.Login)
-	app.Get("/api/user", handler.User)
-	app.Post("/api/logout", handler.Logout)
+func NewRoutes(bookHandler handler.BookHandlerInterface, authHandler handler.AuthHandlerInterface) *Routes {
+	return &Routes{
+		bookHandler: bookHandler,
+		authHandler: authHandler,
+	}
+}
+
+func (r *Routes) Setup(app *fiber.App) {
+
+	// auth
+	app.Post("/api/register", r.authHandler.Register)
+	app.Post("/api/login", r.authHandler.Login)
+	app.Get("/api/user", r.authHandler.User)
+	app.Post("/api/logout", r.authHandler.Logout)
+
+	// booking
+	app.Post("/book/create", r.bookHandler.CreateBook)
+	app.Get("/bank", r.bookHandler.GetBank)
 
 }

@@ -8,7 +8,7 @@ import (
 
 var DB *gorm.DB
 
-func Connect() {
+func Connect() *gorm.DB {
 	db, err := gorm.Open(mysql.Open("root:74712331@/project"), &gorm.Config{})
 
 	if err != nil {
@@ -17,5 +17,11 @@ func Connect() {
 
 	DB = db
 
+	models.InsertBank(db)
+
 	db.AutoMigrate(&models.User{})
+	db.AutoMigrate(&models.Bank{})
+	db.AutoMigrate(&models.SlotBooking{})
+
+	return db
 }
