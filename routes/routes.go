@@ -28,5 +28,7 @@ func (r *Routes) Setup(app *fiber.App) {
 	// booking
 	app.Post("/book/create", r.bookHandler.CreateBook)
 	app.Get("/bank", r.bookHandler.GetBank)
+	app.Delete("/book/:status", r.bookHandler.DeleteBook)
+	app.Get("/bank/detail/:id", r.bookHandler.GetBankById)
 
 }
