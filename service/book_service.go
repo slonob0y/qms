@@ -20,6 +20,8 @@ func NewBookService(bookRepo repository.BookRepoInterface) *BookService {
 type BookServiceInterface interface {
 	CreateBook(book models.SlotBooking) (models.SlotBooking,error)
 	GetBank() ([]models.Bank, error)
+	DeleteBook(status string) error
+	GetBankById(id string) (models.Bank, error)
 }
 
 func(s *BookService) CreateBook(book models.SlotBooking) (models.SlotBooking, error) {
@@ -34,4 +36,20 @@ func(s *BookService) GetBank() ([]models.Bank, error) {
 	banks, err := s.bookRepo.FindAllBank()
 
 	return banks, err
+}
+
+func(s *BookService) DeleteBook(status string) error {
+	err := s.bookRepo.DeleteBook(status)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func(s *BookService) GetBankById(id string) (models.Bank, error) {
+	movies, err := s.bookRepo.GetBankById(id)
+
+	return movies, err
 }
