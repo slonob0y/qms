@@ -16,13 +16,14 @@ func NewBookRepository(db *gorm.DB) *BookRepository {
 }
 
 type BookRepoInterface interface {
-	CreateBook(book models.SlotBooking, day, hour string) (models.SlotBooking, error)
+	CreateBook(book models.SlotBooking, date, hour string) (models.SlotBooking, error)
 	FindAllBank() ([]models.Bank, error)
 	DeleteBook(status string) error
 	GetBankById(id string) (models.Bank, error)
+	GetBookByDate(date string) (uint, error)
 }
 
-func (r *BookRepository) CreateBook(book models.SlotBooking, day, hour string) (models.SlotBooking, error) {
+func (r *BookRepository) CreateBook(book models.SlotBooking, date, hour string) (models.SlotBooking, error) {
 	result := r.db.Create(&book)
 	if result.Error != nil {
 		return book, result.Error
@@ -74,4 +75,16 @@ func (r *BookRepository) GetBankById(id string) (models.Bank, error) {
 	var bank models.Bank
 	findResult := r.db.Where("id = ?", id).First(&bank)
 	return bank, findResult.Error
+}
+
+func (r *BookRepository) GetBookByDate(date string) (uint, error) {
+	var count uint
+	query := `SELECT COUNT(*) FROM slot_bookings where tanggal_pelayanan = ?`
+
+	err := r.db.Raw(query, date).Scan(&count).Error
+	if err != nil {
+		return count, err
+	}
+
+	return count, nil
 }

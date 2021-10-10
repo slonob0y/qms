@@ -5,17 +5,19 @@ import (
 	"time"
 )
 
-func GetDateAndHour() (string, string) {
-	today := time.Now()
-	tomorrow := today.AddDate(0, 0, 1)
+var (
+	today = time.Now()
+)
 
-	tday := tomorrow.Day()
-	tmonth := tomorrow.Month()
-	tyear := tomorrow.Year()
-	hr, min, _ := tomorrow.Clock()
+func FormatGetDate() string {
+	tomorrow := today.AddDate(0, 0, 1).Format("02-01-2006")
 
-	day := strconv.Itoa(tday) + "-" + strconv.Itoa(int(tmonth)) + "-" + strconv.Itoa(tyear)
+	return tomorrow
+}
+
+func FormatGetHour() string {
+	hr, min, _ := today.Clock()
 	hour := strconv.Itoa(hr) + ":" + strconv.Itoa(int(min))
 
-	return day, hour
+	return hour
 }

@@ -29,22 +29,29 @@ type BookHandlerInterface interface {
 func (h *BookHandler) CreateBook(c *fiber.Ctx) error {
 	book := models.SlotBooking{}
 	err := c.BodyParser(&book)
-
-	if book.ID > 7 {
-		c.Status(fiber.StatusCreated)
-		return c.JSON(fiber.Map{
-			"status":  201,
-			"message": "booking penuh",
-			"data": book,
-		})
-	}
-
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": true,
 			"msg":   err.Error(),
 		})
 	}
+
+	err = h.bookService.ValidateBookByDay()
+	if err != nil {
+		return c.Status(fiber.StatusNotImplemented).JSON(fiber.Map{
+			"error": true,
+			"msg":   err.Error(),
+		})
+	}
+
+	// if book.ID > 7 {
+	// 	c.Status(fiber.StatusCreated)
+	// 	return c.JSON(fiber.Map{
+	// 		"status":  201,
+	// 		"message": "booking penuh",
+	// 		"data":    book,
+	// 	})
+	// }
 
 	response, err := h.bookService.CreateBook(book)
 	if err != nil {
@@ -54,17 +61,15 @@ func (h *BookHandler) CreateBook(c *fiber.Ctx) error {
 		})
 	}
 
-
-
 	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
 		"status":  200,
 		"message": "berhasil",
-		"data": response,
+		"data":    response,
 	})
-	
+
 }
 
-func(h *BookHandler) GetBank(c *fiber.Ctx) error {
+func (h *BookHandler) GetBank(c *fiber.Ctx) error {
 	banks, err := h.bookService.GetBank()
 
 	if err != nil {
@@ -74,11 +79,11 @@ func(h *BookHandler) GetBank(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
 		"status":  200,
 		"message": "berhasil",
-		"data": banks,
+		"data":    banks,
 	})
 }
 
-func(h *BookHandler) DeleteBook(c *fiber.Ctx) error {
+func (h *BookHandler) DeleteBook(c *fiber.Ctx) error {
 	id := c.Params("id_booking")
 
 	err := h.bookService.DeleteBook(id)
@@ -99,10 +104,10 @@ func(h *BookHandler) DeleteBook(c *fiber.Ctx) error {
 		"error":  false,
 		"result": "success delete data",
 	})
-	
+
 }
 
-func(h *BookHandler) GetBankById(c *fiber.Ctx) error {
+func (h *BookHandler) GetBankById(c *fiber.Ctx) error {
 	id := c.Params("id")
 
 	response, err := h.bookService.GetBankById(id)
@@ -114,9 +119,9 @@ func(h *BookHandler) GetBankById(c *fiber.Ctx) error {
 	}
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"error":  false,
+		"error": false,
 		// "msg":    "success update data",
 		"result": response,
 	})
-	
+
 }
