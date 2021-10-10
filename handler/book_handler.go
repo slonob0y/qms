@@ -28,8 +28,18 @@ type BookHandlerInterface interface {
 
 func (h *BookHandler) CreateBook(c *fiber.Ctx) error {
 	book := models.SlotBooking{}
+	err := c.BodyParser(&book)
 
-	if err := c.BodyParser(&book); err != nil {
+	if book.ID > 7 {
+		c.Status(fiber.StatusCreated)
+		return c.JSON(fiber.Map{
+			"status":  201,
+			"message": "booking penuh",
+			"data": book,
+		})
+	}
+
+	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": true,
 			"msg":   err.Error(),
@@ -44,10 +54,12 @@ func (h *BookHandler) CreateBook(c *fiber.Ctx) error {
 		})
 	}
 
+
+
 	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
-		"error":  false,
-		"msg":    "success update data",
-		"result": response,
+		"status":  200,
+		"message": "berhasil",
+		"data": response,
 	})
 	
 }
@@ -59,13 +71,17 @@ func(h *BookHandler) GetBank(c *fiber.Ctx) error {
 		c.Status(fiber.StatusForbidden).JSON(err)
 	}
 
-	return c.JSON(banks)
+	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
+		"status":  200,
+		"message": "berhasil",
+		"data": banks,
+	})
 }
 
 func(h *BookHandler) DeleteBook(c *fiber.Ctx) error {
-	status := c.Params("status")
+	id := c.Params("id_booking")
 
-	err := h.bookService.DeleteBook(status)
+	err := h.bookService.DeleteBook(id)
 	if err != nil {
 		var statusCode = fiber.StatusInternalServerError
 

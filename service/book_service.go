@@ -38,8 +38,8 @@ func(s *BookService) GetBank() ([]models.Bank, error) {
 	return banks, err
 }
 
-func(s *BookService) DeleteBook(status string) error {
-	err := s.bookRepo.DeleteBook(status)
+func(s *BookService) DeleteBook(id string) error {
+	err := s.bookRepo.DeleteBook(id)
 
 	if err != nil {
 		return err
