@@ -1,11 +1,11 @@
 package models
 
 type SlotBooking struct {
-	ID       			uint   		`gorm:"primaryKey" json:"id_booking"`
-	TanggalPelayanan 	int 		`json:"tanggal_pelayanan"`
-	JamPelayanan 		int 		`json:"jam_pelayanan"`
-	KeperluanLayanan	int 		`gorm:"primaryKey" json:"keperluan_layanan"`
-	Status 				string 		`gorm:"primaryKey" json:"status"`
-	BankID 				uint		`json:"id_bank_tujuan"`
-	UserID 				uint 		`json:"id_user"`
+	ID               uint   `gorm:"column:id" json:"id_booking"`
+	TanggalPelayanan string `json:"tanggal_pelayanan"`
+	JamPelayanan     string `json:"jam_pelayanan"`
+	KeperluanLayanan int    `json:"keperluan_layanan"`
+	Status           string `json:"status"`
+	BankID           uint   `json:"id_bank_tujuan"`
+	UserID           uint   `json:"id_user"`
 }

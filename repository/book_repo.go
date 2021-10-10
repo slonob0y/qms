@@ -16,24 +16,19 @@ func NewBookRepository(db *gorm.DB) *BookRepository {
 }
 
 type BookRepoInterface interface {
-	CreateBook(book models.SlotBooking) (models.SlotBooking, error)
+	CreateBook(book models.SlotBooking, day, hour string) (models.SlotBooking, error)
 	FindAllBank() ([]models.Bank, error)
 	DeleteBook(status string) error
 	GetBankById(id string) (models.Bank, error)
 }
 
-func(r *BookRepository) CreateBook(book models.SlotBooking) (models.SlotBooking, error) {
-	trx := r.db.Create(&book)
+func (r *BookRepository) CreateBook(book models.SlotBooking, day, hour string) (models.SlotBooking, error) {
+	result := r.db.Create(&book)
+	if result.Error != nil {
+		return book, result.Error
+	}
 
-	// today := time.Now()
-	// today.Day(), today.Month(), today.Year() 
- 	// tomorrow := today.AddDate(0, 0, 1)
-// 	r.db.Exec("INSERT INTO slot_bookings (id_booking, tanggal_pelayanan, jam_pelayanan, keperluan_layanan, status, id_bank_tujuan, id_user)
-// // 				VALUES ($1, $2, $3, $4, $5, $6, $7)", book.ID, book.TanggalPelayanan, book.JamPelayanan, book.KeperluanLayanan, book.Status, book.BankID, book.UserID)
-
-	// time.Now().Add(time.Minute * time.Duration(10)).Unix()
-
-	return book, trx.Error
+	return book, nil
 }
 
 // func(r *BookRepository) CreateBook(book *models.SlotBooking) error {
@@ -51,18 +46,17 @@ func(r *BookRepository) CreateBook(book models.SlotBooking) (models.SlotBooking,
 // func(r *BookRepository) CreateFullBook(book models.SlotBooking) (models.SlotBooking, error) {
 // 	trx := r.db.Create(&book)
 
-
 // 	return book, trx.Error
 // }
 
-func(r *BookRepository) FindAllBank() ([]models.Bank, error) {
+func (r *BookRepository) FindAllBank() ([]models.Bank, error) {
 	var banks []models.Bank
 	findResult := r.db.Find(&banks)
 
 	return banks, findResult.Error
 }
 
-func(r *BookRepository) DeleteBook(id string) error {
+func (r *BookRepository) DeleteBook(id string) error {
 	var book models.SlotBooking
 	findResult := r.db.Unscoped().Where("id_booking = ?", id).Delete(&book)
 	if findResult.Error != nil {
@@ -72,11 +66,11 @@ func(r *BookRepository) DeleteBook(id string) error {
 	if findResult.RowsAffected == 0 {
 		return gorm.ErrRecordNotFound
 	}
-	
+
 	return nil
 }
 
-func(r *BookRepository) GetBankById(id string) (models.Bank, error) {
+func (r *BookRepository) GetBankById(id string) (models.Bank, error) {
 	var bank models.Bank
 	findResult := r.db.Where("id = ?", id).First(&bank)
 	return bank, findResult.Error
