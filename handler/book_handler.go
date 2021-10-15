@@ -24,6 +24,8 @@ type BookHandlerInterface interface {
 	GetBank(c *fiber.Ctx) error
 	DeleteBook(c *fiber.Ctx) error
 	GetBankById(c *fiber.Ctx) error
+	GetBookById(c *fiber.Ctx) error
+	UpdateStatus(c *fiber.Ctx) error
 }
 
 func (h *BookHandler) CreateBook(c *fiber.Ctx) error {
@@ -38,9 +40,9 @@ func (h *BookHandler) CreateBook(c *fiber.Ctx) error {
 
 	err = h.bookService.ValidateBookByDay()
 	if err != nil {
-		return c.Status(fiber.StatusNotImplemented).JSON(fiber.Map{
-			"error": true,
-			"msg":   err.Error(),
+		return c.Status(fiber.StatusCreated).JSON(fiber.Map{
+			"status":  201,
+			"message":   err.Error(),
 		})
 	}
 
@@ -84,7 +86,7 @@ func (h *BookHandler) GetBank(c *fiber.Ctx) error {
 }
 
 func (h *BookHandler) DeleteBook(c *fiber.Ctx) error {
-	id := c.Params("id_booking")
+	id := c.Params("id")
 
 	err := h.bookService.DeleteBook(id)
 	if err != nil {
@@ -100,9 +102,9 @@ func (h *BookHandler) DeleteBook(c *fiber.Ctx) error {
 		})
 	}
 
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"error":  false,
-		"result": "success delete data",
+	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
+		"status":  201,
+		"message": "berhasil",
 	})
 
 }
@@ -124,4 +126,72 @@ func (h *BookHandler) GetBankById(c *fiber.Ctx) error {
 		"result": response,
 	})
 
+}
+
+func(r *BookHandler) GetBookById(c *fiber.Ctx) error {
+	// status := c.Query("status")
+	// id := c.Query("id")
+	// status := c.Params("status")
+	id := c.Params("id")
+	
+	// var book models.SlotBooking
+
+	// if err := c.BodyParser(&book); err != nil {
+	// 	return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+	// 		"error": true,
+	// 		"msg":   err.Error(),
+	// 	})
+	// }
+
+	// fmt.Println("hand", book)
+
+	// _, err := r.bookService.UpdateBookStatus(book, status)
+	// if err != nil {
+	// 	return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+	// 		"error": true,
+	// 		"msg":   err.Error(),
+	// 	})
+	// }
+
+	response, err := r.bookService.GetBookById(id)
+	if err != nil {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"error": true,
+			"msg":   err.Error(),
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"error":  false,
+		// "msg":    "success update data",
+		"result": response,
+	})
+	
+}
+
+func (m *BookHandler) UpdateStatus(c *fiber.Ctx) error {
+	book := models.SlotBooking{}
+	status := c.Params("status")
+	// var mysqlErr *mysql.MySQLError
+
+	if err := c.BodyParser(&book); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": true,
+			"msg":   err.Error(),
+		})
+	}
+
+	response, err := m.bookService.UpdateBookStatus(book, status)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": true,
+			"msg":   err.Error(),
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"error":  false,
+		"msg":    "success update data",
+		"result": response,
+	})
 }

@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/slonob0y/qms/models"
 	"github.com/slonob0y/qms/repository"
@@ -22,8 +23,10 @@ type BookServiceInterface interface {
 	CreateBook(book models.SlotBooking) (data models.SlotBooking, err error)
 	GetBank() ([]models.Bank, error)
 	DeleteBook(status string) error
+	UpdateBookStatus(book models.SlotBooking, status string) (books models.SlotBooking, err error)
 	GetBankById(id string) (models.Bank, error)
 	ValidateBookByDay() error
+	GetBookById(id string) ([]models.SlotBooking, error)
 }
 
 func (s *BookService) CreateBook(book models.SlotBooking) (data models.SlotBooking, err error) {
@@ -57,6 +60,24 @@ func (s *BookService) DeleteBook(id string) error {
 	return nil
 }
 
+func (s *BookService) UpdateBookStatus(book models.SlotBooking, status string) (books models.SlotBooking, err error) {
+	// update book data
+	err = s.bookRepo.UpdateBookStatus(book, status)
+	if err != nil {
+		return books, err
+	}
+
+	// select book
+	books, err = s.bookRepo.FindByStatus(status)
+	if err != nil {
+		return books, err
+	}
+
+	fmt.Println("books", books)
+
+	return books, nil
+}
+
 func (s *BookService) GetBankById(id string) (models.Bank, error) {
 	movies, err := s.bookRepo.GetBankById(id)
 
@@ -70,10 +91,22 @@ func (s *BookService) ValidateBookByDay() error {
 		return err
 	}
 
-	if count > 40 {
-		return errors.New("slot booking di hari ini sudah penuh")
+	if count > 10 {
+		return errors.New("booking penuh")
 	}
 
 	return nil
 
+}
+
+func(s *BookService) GetBookById(id string) ([]models.SlotBooking, error) {
+	book, err := s.bookRepo.GetBookById(id)
+
+	if err != nil {
+		return book, err
+	}
+	fmt.Println(book)
+
+
+	return book, nil
 }

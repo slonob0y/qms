@@ -50,7 +50,7 @@ func (h *AuthHandler) Register(c *fiber.Ctx) error {
 
 	database.DB.Create(&user)
 
-	if user.ID == 0 {
+	if user.Username == "" {
 		c.Status(fiber.StatusNotFound)
 		return c.JSON(fiber.Map{
 			"status":  404,
